@@ -1,0 +1,33 @@
+name: abitur-monitor
+on:
+  schedule:
+    - cron: "0 5 * * *"
+  workflow_dispatch: {}
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install deps
+        run: |
+          pip install -r requirements.txt
+          python -m playwright install --with-deps chromium
+      - name: Run monitor
+        env:
+          APPLICANT_ID: "1212030"
+          TG_TOKEN: ${{ secrets.TG_TOKEN }}
+          TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
+          LETI_GROUPS: ${{ secrets.LETI_GROUPS }}
+          BONCH_ENDPOINT: ${{ secrets.BONCH_ENDPOINT }}
+          BONCH_GROUPS: ${{ secrets.BONCH_GROUPS }}
+          SHEETS_ENABLED: "0"
+        run: python abitur_monitor.py
+      - name: Save report artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: report-csv
+          path: report.csv
+          if-no-files-found: ignore
