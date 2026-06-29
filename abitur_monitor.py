@@ -343,7 +343,8 @@ def adapter_bonch() -> list[Record]:
         return []
     recs: list[Record] = []
     # перебор конкурсных групп; список group_ids тоже снимается из Network один раз
-    group_ids = json.loads(os.environ.get("BONCH_GROUPS", "[]"))
+    _bonch_raw = os.environ.get("BONCH_GROUPS", "").strip()
+    group_ids = json.loads(_bonch_raw) if _bonch_raw else []
     for gid in group_ids:
         try:
             r = requests.get(endpoint, params={"group": gid}, headers=HEADERS, timeout=TIMEOUT)
