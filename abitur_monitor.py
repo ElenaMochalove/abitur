@@ -55,7 +55,7 @@ HEADERS = {
         "(KHTML, like Gecko) Chrome/124.0 Safari/537.36"
     )
 }
-TIMEOUT = 30
+TIMEOUT = 60
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s  %(levelname)s  %(message)s"
@@ -261,11 +261,21 @@ def _add_real_position(rec: Record, data, header, our_idx: int) -> None:
 #  АДАПТЕРЫ ПО ВУЗАМ
 # ──────────────────────────────────────────────────────────────────────────
 
-def fetch(url: str) -> str:
-    r = requests.get(url, headers=HEADERS, timeout=TIMEOUT)
-    r.raise_for_status()
-    r.encoding = r.apparent_encoding or "utf-8"
-    return r.text
+def fetch(url: str, retries: int = 3) -> str:
+    """Загрузка страницы с повторными попытками (вузовские сайты бывают медленные)."""
+    last_err = None
+    for attempt in range(1, retries + 1):
+        try:
+            r = requests.get(url, headers=HEADERS, timeout=TIMEOUT)
+            r.raise_for_status()
+            r.encoding = r.apparent_encoding or "utf-8"
+            return r.text
+        except Exception as e:
+            last_err = e
+            log.warning("Попытка %d/%d не удалась (%s): %s", attempt, retries, url, e)
+            if attempt < retries:
+                time.sleep(5 * attempt)  # пауза растёт: 5с, 10с
+    raise last_err
 
 
 # ---- Волгатех: одна статическая страница со всеми группами ----------------
