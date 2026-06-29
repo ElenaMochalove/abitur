@@ -1,0 +1,7 @@
+requests>=2.31
+beautifulsoup4>=4.12
+# для ЛЭТИ (SPA + robots) нужен headless-браузер:
+playwright>=1.44
+# опционально — запись в Google-таблицу:
+gspread>=6.0
+google-auth>=2.30
