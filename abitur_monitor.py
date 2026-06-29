@@ -395,9 +395,8 @@ def _bonch_from_json(payload, url, gid) -> list[Record]:
 # Конкурсные списки открываются 27 июля 2026. Мониторим 4 кода.
 LETI_CODES = ["09.03.01", "09.03.02", "10.05.01", "27.03.03"]
 # code -> список id конкурсных групп (снимаются из URL один раз, см. README)
-LETI_GROUPS = json.loads(os.environ.get("LETI_GROUPS", json.dumps({
-    # пример (id из вашей ссылки — подставьте под нужный код):
-    # "09.03.01": ["019ee529-454f-7e45-aced-7f2361797e11"],
+_leti_raw = os.environ.get("LETI_GROUPS", "").strip()
+LETI_GROUPS = json.loads(_leti_raw) if _leti_raw else {}
 })))
 
 
